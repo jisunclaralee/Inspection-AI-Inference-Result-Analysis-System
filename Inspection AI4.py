@@ -163,26 +163,14 @@ def display_defect_view(df, bundle_info, strip_id):
 def display_image_path_view(df, defect_info):
     if st.button("◀ Defect List"): st.session_state.view_level = 'defect'; st.session_state.selected_defect_info = None; st.rerun()
     defect_col_name = 'afvi_ai_defect'; st.markdown(f"#### Image Paths for Strip `{defect_info['strip_id']}` > Defect `{defect_info[defect_col_name]}`")
-    st.caption("'이미지 보기' 버튼을 클릭하여 로컬 이미지를 팝업으로 확인하세요."); st.divider()
-    LOCAL_IMAGE_DIRECTORY = r"C:\Users\user\Desktop\새 폴더\venv\pcb_dashboard\data\images"
+    st.caption("이미지 경로를 확인하세요."); st.divider()
     image_df = df[(df['test_id'] == defect_info['test_id']) & (df['lot_no'] == defect_info['lot_no']) & (df['bundle_no'] == defect_info['bundle_no']) & (df['strip_id'] == defect_info['strip_id']) & (df[defect_col_name] == defect_info[defect_col_name])].dropna(subset=['image_path'])
     if image_df.empty: st.info("표시할 이미지가 없습니다.")
     else:
         for index, row in image_df.iterrows():
-            db_path = row['image_path']
-            cols = st.columns([0.8, 0.2])
-            cols[0].code(db_path, language=None)
-            if cols[1].button("이미지 보기", key=f"popup_{index}", use_container_width=True):
-                @st.dialog("Local Image Preview")
-                def image_popup(image_db_path):
-                    cleaned_path = image_db_path[1:] if image_db_path.startswith('/') else image_db_path
-                    local_filename = cleaned_path.replace('/', '')
-                    full_local_path = os.path.join(LOCAL_IMAGE_DIRECTORY, local_filename)
-                    if os.path.exists(full_local_path):
-                        st.image(full_local_path, use_column_width=True, caption=local_filename)
-                    else:
-                        st.error(f"Local file not found:\n{full_local_path}")
-                image_popup(db_path)
+            image_path = row['image_path']
+            cols = st.columns([1.0])
+            cols[0].code(image_path, language=None)
             st.divider()
 
 # --- 4. Streamlit 앱 메인 로직 ---
