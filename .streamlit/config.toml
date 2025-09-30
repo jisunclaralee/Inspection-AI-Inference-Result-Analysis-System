@@ -1,0 +1,16 @@
+[theme]
+# 전체 앱의 배경 색상 (어두운 네이비 계열)
+base="dark"
+backgroundColor="#0D1117"
+
+# 사이드바와 컴포넌트의 배경 색상 (조금 더 밝은 네이비)
+secondaryBackgroundColor="#161B22"
+
+# 주요 텍스트 색상 (밝은 회색)
+textColor="#E6EDF3" 
+
+# 액센트 색상 (버튼, 링크, 강조 텍스트 등) - 녹색 계열
+primaryColor="#2EC4B6"
+
+# 폰트 설정
+# font="sans serif"
