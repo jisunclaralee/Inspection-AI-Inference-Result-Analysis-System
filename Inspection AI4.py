@@ -163,14 +163,38 @@ def display_defect_view(df, bundle_info, strip_id):
 def display_image_path_view(df, defect_info):
     if st.button("◀ Defect List"): st.session_state.view_level = 'defect'; st.session_state.selected_defect_info = None; st.rerun()
     defect_col_name = 'afvi_ai_defect'; st.markdown(f"#### Image Paths for Strip `{defect_info['strip_id']}` > Defect `{defect_info[defect_col_name]}`")
-    st.caption("이미지 경로를 확인하세요."); st.divider()
+    st.caption("'이미지 보기' 버튼을 클릭하여 이미지 팝업을 확인하세요."); st.divider()
     image_df = df[(df['test_id'] == defect_info['test_id']) & (df['lot_no'] == defect_info['lot_no']) & (df['bundle_no'] == defect_info['bundle_no']) & (df['strip_id'] == defect_info['strip_id']) & (df[defect_col_name] == defect_info[defect_col_name])].dropna(subset=['image_path'])
     if image_df.empty: st.info("표시할 이미지가 없습니다.")
     else:
         for index, row in image_df.iterrows():
             image_path = row['image_path']
-            cols = st.columns([1.0])
+            cols = st.columns([0.8, 0.2])
             cols[0].code(image_path, language=None)
+            if cols[1].button("이미지 보기", key=f"image_{index}", use_container_width=True):
+                @st.dialog("Image Preview")
+                def show_image_popup(path):
+                    try:
+                        # 이미지 경로가 URL인 경우
+                        if path.startswith('http'):
+                            st.image(path, use_column_width=True, caption=f"Image: {path}")
+                        # 로컬 파일 경로인 경우
+                        elif os.path.exists(path):
+                            st.image(path, use_column_width=True, caption=f"Image: {os.path.basename(path)}")
+                        # 상대 경로인 경우 현재 디렉토리 기준으로 시도
+                        else:
+                            # 현재 작업 디렉토리에서 찾기
+                            current_dir_path = os.path.join(os.getcwd(), path)
+                            if os.path.exists(current_dir_path):
+                                st.image(current_dir_path, use_column_width=True, caption=f"Image: {os.path.basename(path)}")
+                            else:
+                                st.error(f"이미지를 찾을 수 없습니다: {path}")
+                                st.info("경로를 확인해주세요. URL이거나 올바른 파일 경로여야 합니다.")
+                    except Exception as e:
+                        st.error(f"이미지 로드 중 오류 발생: {str(e)}")
+                        st.code(f"경로: {path}")
+                
+                show_image_popup(image_path)
             st.divider()
 
 # --- 4. Streamlit 앱 메인 로직 ---
